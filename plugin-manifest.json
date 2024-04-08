@@ -24,17 +24,14 @@
   },
   "zohoAuthorisation": {
     "type": "connectors",
-    "connectionLinkName": "2360a557-d3c6-412c-9d39-4c8f21d5f2ed-819609396_881662000001246115-2360a557-d3c6-412c-9d39-4c8f21d5f2ed-819609396_881662000001246115-desk_connection",
-    "connectionName": "getTicket-getTicket-desk_connection",
+    "connectionLinkName": "zohodesk",
+    "connectionName": "zohodesk",
     "serviceName": "zlabs_integration",
     "userAccess": true,
     "isUserDefinedService": false,
     "sharedBy": "819609396",
     "scope": [
-      "Desk.tickets.ALL",
-      "Desk.contacts.READ",
-      "Desk.contacts.WRITE",
-      "Desk.contacts.UPDATE"
+      "Desk.contacts.ALL"
     ]
   },
   "connectors": [],

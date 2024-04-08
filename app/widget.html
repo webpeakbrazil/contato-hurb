@@ -17,65 +17,80 @@
 		<input type="text" id="lastName" name="lastName"><br>
 
 		<label for="email">Email:</label><br>
-		<input type="email" id="email" name="email"><br>
+		<input type="text" id="email" name="email"><br>
 
 		<label for="phone">Phone:</label><br>
-		<input type="tel" id="phone" name="phone"><br>
+		<input type="text" id="phone" name="phone"><br>
 
 		<label for="cf_data_de_nascimento">Date of Birth:</label><br>
-		<input type="date" id="cf_data_de_nascimento" name="cf_data_de_nascimento"><br>
+		<input type="text" id="cf_data_de_nascimento" name="cf_data_de_nascimento"><br>
 
 		<label for="cf_cnpj_do_cliente">CNPJ:</label><br>
 		<input type="text" id="cf_cnpj_do_cliente" name="cf_cnpj_do_cliente"><br>
 
 		<label for="cf_cpf_do_cliente">CPF:</label><br>
 		<input type="text" id="cf_cpf_do_cliente" name="cf_cpf_do_cliente"><br>
+
 		<br>
 		<button type="submit">Update Contact</button>
 	</form>
 	<script src="https://js.zohostatic.com/support/developer_sdk/v1/js/ZohoDeskClientSDK.min.js"></script>
 	<script>
+		var contactId;
 		window.onload = function () {
 			ZOHODESK.extension.onload().then(function (App) {
-
 				// Fetching ticket information
 				ZOHODESK.get("ticket").then(function (ticketResponse) {
 					// Logging contactId retrieved from the ticket
 					console.log("contactId", ticketResponse?.ticket?.contactId);
-					const contactId = ticketResponse?.ticket?.contactId;
+					contactId = ticketResponse?.ticket?.contactId;
 
 					// Requesting contact information from Desk Zoho API
 					ZOHODESK.request({
 						url: 'https://desk.zoho.com/api/v1/contacts/' + contactId,
 						headers: {
-							'Content-Type': 'application/json',
-							'orgId': '819609396'
+							'Content-type': 'application/json',
+							// 'orgId': 819609396
 						},
 						type: 'GET',
-						connectionLinkName: '2360a557-d3c6-412c-9d39-4c8f21d5f2ed-819609396_881662000001246115-2360a557-d3c6-412c-9d39-4c8f21d5f2ed-819609396_881662000001246115-desk_connection',
-						contentType: 'application/json',
-						dataType: 'json',
-						service: ''
-					}).then(function (contactResponse) {
+						data: {},
+						connectionLinkName: 'zohodesk',
+						// dataType: 'json',
+						// service: '',
+						postBody: {},
+						// contentType: 'application/json',
+					}).then(contactResponse => {
 						// Logging contact information retrieved from Desk Zoho API
 						console.log("Desk Zoho API contacts", contactResponse);
-						// Fill the form with contact data
-						document.getElementById('firstName').value = contactResponse.firstName;
-						document.getElementById('lastName').value = contactResponse.lastName;
-						document.getElementById('email').value = contactResponse.email;
-						document.getElementById('phone').value = contactResponse.phone;
-						document.getElementById('cf_data_de_nascimento').value = contactResponse.cf.cf_data_de_nascimento;
-						document.getElementById('cf_cnpj_do_cliente').value = contactResponse.cf.cf_cnpj_do_cliente;
-						document.getElementById('cf_cpf_do_cliente').value = contactResponse.cf.cf_cpf_do_cliente;
 
-					}).catch(function (err) {
-						// Error handling for fetching contact information
-						console.error('Error fetching Desk Zoho API contacts information:', err?.errMsg);
+						const data = JSON.parse(contactResponse);
+						console.log("JSON.parse(contactResponse)", JSON.parse(contactResponse));
+
+						const response = JSON.parse(data?.response);
+						console.log("data?.response", response);
+
+						const statusMessage = response?.statusMessage;
+						console.log("response?.statusMessage", statusMessage);
+
+						// Fill the form with contact data
+						document.getElementById('firstName').value = String(statusMessage?.firstName);
+						document.getElementById('lastName').value = String(statusMessage?.lastName);
+						document.getElementById('email').value = String(statusMessage?.email);
+						document.getElementById('phone').value = String(statusMessage?.phone);
+						document.getElementById('cf_data_de_nascimento').value = String(statusMessage?.cf?.cf_data_de_nascimento);
+						document.getElementById('cf_cnpj_do_cliente').value = String(statusMessage?.cf?.cf_cnpj_do_cliente);
+						document.getElementById('cf_cpf_do_cliente').value = String(statusMessage?.cf?.cf_cpf_do_cliente);
+					}, (error) => {
+						// Implement your logic here
+						console.log(error);
 					})
 				}).catch(function (err) {
 					// Error handling for fetching ticket information
 					console.error('Error fetching ticket information:', err);
 				});
+			}).catch(function (err) {
+				// Error handling for onload promise
+				console.error('Error in window.onload:', err);
 			});
 
 			// Handling form submission
@@ -83,41 +98,45 @@
 				event.preventDefault(); // Prevent default form submission
 
 				const updatedData = {
-					'firstName': document.getElementById('firstName').value,
-					'lastName': document.getElementById('lastName').value,
-					'email': document.getElementById('email').value,
-					'phone': document.getElementById('phone').value,
-					'cf_data_de_nascimento': document.getElementById('cf_data_de_nascimento').value,
-					'cf_cnpj_do_cliente': document.getElementById('cf_cnpj_do_cliente').value,
-					'cf_cpf_do_cliente': document.getElementById('cf_cpf_do_cliente').value
-				};
+					firstName: String(document.getElementById("firstName").value)
+				}
+
+				console.log("updatedData", updatedData);
 
 				// Updating contact data
 				ZOHODESK.request({
-					url: 'https://desk.zoho.com/api/v1/contacts/',
+					url: 'https://desk.zoho.com/api/v1/contacts/' + contactId,
 					headers: {
-						'Content-Type': 'application/json',
-						'orgId': '819609396'
+						'Content-type': 'application/json',
+						// 'orgId': 819609396
 					},
-					type: 'PUT',
+					type: 'PATCH',
 					data: updatedData,
-					connectionLinkName: '2360a557-d3c6-412c-9d39-4c8f21d5f2ed-819609396_881662000001246115-2360a557-d3c6-412c-9d39-4c8f21d5f2ed-819609396_881662000001246115-desk_connection',
-					contentType: 'application/json',
+					connectionLinkName: 'zohodesk',
 					dataType: 'json',
-					service: ''
-				}).then(function (response) {
-					// Logging update response from Desk Zoho API
-					console.log("Desk Zoho API contacts update", response);
+					// service: '',
+					postBody: {},
+					contentType: 'application/json',
+				}).then(function (updateResponse) {
+					// Logging update updateResponse from Desk Zoho API
+					console.log("Desk Zoho API contacts update", updateResponse);
+
+					const data = JSON.parse(updateResponse);
+					console.log("JSON.parse(updateResponse)", JSON.parse(updateResponse));
+
+					const response = JSON.parse(data?.response);
+					console.log("data?.response", response);
+
+					const statusMessage = response?.statusMessage;
+					console.log("response?.statusMessage", statusMessage);
 				}).catch(function (err) {
 					// Error handling for updating contact information
-					console.error('Error updating Desk Zoho API contacts information:', err?.errMsg);
+					console.error('Error updating Desk Zoho API contacts information:', err);
 				})
-			}).catch(function (err) {
-				// Error handling for fetching ticket information
-				console.error('Error fetching ticket information:', err);
 			});
 		};
 	</script>
+
 
 	<script src="./js/extension.js" charset="utf-8"></script>
 
