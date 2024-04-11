@@ -11,9 +11,9 @@
   "modules": {
     "widgets": [
       {
-        "location": "desk.ticket.detail.rightpanel",
+        "location": "desk.ticket.detail.subtab",
         "url": "/app/widget.html",
-        "name": "Desk Extension Ticket",
+        "name": "Editar Contato",
         "logo": "/app/img/logo.png",
         "icon": "/app/img/icon.png"
       }
